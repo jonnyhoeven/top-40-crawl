@@ -22,53 +22,12 @@ Python client and Springboot REST API service, crawling and augmenting top 40 mu
 - OpenAI API Java dependency
   - [Azure OpenAI client library for Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/openai/azure-ai-openai)
   - [openai-java by Theo Kanning](https://github.com/TheoKanning/openai-java)
-  - Bare rest calls?
-- Rest API input example: PUT artist, title, chart position, week, year and image url.
-- Insert artist, title, chart position, week, year and image url into TABLE `crawl`, 
+  - Bare REST calls?
+- Rest API input example: PUT artist, title, chart position, year, week and image url.
+- Insert artist, title, chart position, year, week and image url into TABLE `crawl`.
 - Is title + artist in TABLE `result`?
-  - No, Use OpenAI API and save result, prompt and model name in TABLE `result`.
-- Bonus points for an `GET` rest API call returning results
+  - No, Use OpenAI API data to and save result, prompt and model name in TABLE `result`.
 
-## Data model
-
-```sql
-CHANGE DATABASE top40;
-
-CREATE crawl TABLE
-  id            AUTO_NUMERIC,
-  title         STRING,
-  artist        STRING,
-  chart_pos     NUMERIC,
-  year          NUMERIC,
-  week          NUMERIC,
-  image_id      NUMERIC,
-  result_id     NUMERIC,
-  created       CURRENT()
-;
-
-CREATE image TABLE
-  id            AUTO_NUMERIC,
-  url           STRING,
-  created       CURRENT()
-;
-
-CREATE result TABLE
-  id            AUTO_NUMERIC,
-  model         STRING,
-  input_prompt  STRING,
-  output_result STRING,
-  created       CURRENT()
-;
-```
-
-### Check for existing results
-
-```sql
-SELECT COUNT(*) FROM crawl AS c
-LEFT JOIN result ON result.crawl_id = crawl.id AS r
-WHERE  c.title = "title"
-  AND c.artist = "artist"
-;
 ```
 
 ### Prompting example
@@ -98,4 +57,48 @@ messages:
     content: >2-
       Output desired format for the following data: 
 ```
+
+
+## Data model
+
+```sql
+CHANGE DATABASE top40;
+
+CREATE crawl TABLE
+  id            AUTO_NUMERIC,
+  title         STRING,
+  artist        STRING,
+  chart_pos     NUMERIC,
+  week          NUMERIC,
+  year          NUMERIC,
+  image_id      NUMERIC,
+  result_id     NUMERIC,
+  created       CURRENT()
+;
+
+CREATE image TABLE
+  id            AUTO_NUMERIC,
+  url           STRING,
+  created       CURRENT()
+;
+
+CREATE result TABLE
+  id            AUTO_NUMERIC,
+  model         STRING,
+  input_prompt  STRING,
+  output_result STRING,
+  title_desc    STRING,
+  created       CURRENT()
+;
+```
+
+### Check for existing results
+
+```sql
+SELECT COUNT(*) FROM crawl AS c
+LEFT JOIN result ON result.crawl_id = crawl.id AS r
+WHERE  c.title = "title"
+  AND c.artist = "artist"
+;
+
 
