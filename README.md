@@ -1,6 +1,6 @@
 # Top 40 Crawler
 
-Python client and Springboot REST API service, crawling and augmenting top 40 music charts together...
+Python client and Spring REST API service, crawling and augmenting top 40 music charts together...
 
 [reference](https://spring.io/guides/tutorials/rest)
 
@@ -9,15 +9,15 @@ Python client and Springboot REST API service, crawling and augmenting top 40 mu
 
 - Scrape some stuff from https://www.top40.nl/top40/1965/week-1.
 - Store artist, title, chart position, week, year and image url.
-- Store it to Python binary objects for later client replayability against Springboot POC
+- Store it to Python binary objects for later client replayability against Spring POC
 
 ## Call player client
 
-- Parse binary objects and call the Springboot rest API.
+- Parse binary objects and call the Spring rest API.
 
-## Springboot POC
+## Spring POC
 
-- Springboot REST API [Tutorial](https://spring.io/guides/tutorials/rest)
+- Spring REST API [Tutorial](https://spring.io/guides/tutorials/rest)
 - DB connection
 - OpenAI API Java dependency
   - [Azure OpenAI client library for Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/openai/azure-ai-openai)
