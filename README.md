@@ -17,7 +17,7 @@ Python application crawling top 40 music chart data and requesting OpenAI intera
 - DB connection
 - OpenAI API Java dependency
 - rest api input example: PUT title, chart position, week, year, image.
-- Check if title + artist has a record in `open-ai-results` then only save week, year, chart position and original data using SQL and skip next step.
+- Check if title + artist has a record in `results` then only save week, year, chart position and original data using SQL and skip next step.
 - Use OpenAI API and create prompt for artist info, title description, lyrics, genre, bpm, key, keywords, release date and publisher.
 - Store call results to db, make sure to include original prompt, model and processing start/end datetimestamp.
 
