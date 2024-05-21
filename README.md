@@ -22,7 +22,7 @@ Python client and Springboot REST API, crawling and augmenting top 40 music char
 - rest api input example: PUT artist, title, chart position, week, year and image url.
 - Insert artist, title, chart position, week, year and image url into TABLE `crawl`, 
 - Is title + artist in TABLE `results`
-  - No, Use OpenAI API and save prompt, model in results.
+  - No, Use OpenAI API result, prompt and model name in results.
 - Store call results to db, make sure to include original prompt, model and processing start/end datetimestamp.
 
 ## Data model
