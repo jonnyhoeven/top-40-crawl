@@ -8,7 +8,7 @@ Python application crawling top 40 music chart data and requesting OpenAI intera
 ## Scraping
 
 - Scrape from https://www.top40.nl/top40/1965/week-1 to current date.
-- Find artist - title, chart position, week, year, image(minimalization needed).
+- Find artist - title, chart position, week, year, image.
 - store to Python binary blobs
 
 ## Springboot is my new thing
