@@ -1,29 +1,33 @@
 # Top 40 Crawler
 
-Python client and Springboot REST API, crawling and augmenting top 40 music charts together...
+Python client and Springboot REST API service, crawling and augmenting top 40 music charts together...
 
 [reference](https://spring.io/guides/tutorials/rest)
 
+
 ## Scraping
 
-- Scrape some stuff from https://www.top40.nl/top40/1965/week-1 till; whenever we get banned.
+- Scrape some stuff from https://www.top40.nl/top40/1965/week-1.
 - Store artist, title, chart position, week, year and image url.
 - Store it to Python binary objects for later client replayability against Springboot POC
 
-## Call player
+## Call player client
 
 - Parse binary objects and call the Springboot rest API.
 
-## Springboot
+## Springboot POC
 
 - Springboot REST API [Tutorial](https://spring.io/guides/tutorials/rest)
 - DB connection
 - OpenAI API Java dependency
-- rest api input example: PUT artist, title, chart position, week, year and image url.
+  - [Azure OpenAI client library for Java](https://github.com/Azure/azure-sdk-for-java/tree/main/sdk/openai/azure-ai-openai)
+  - [openai-java by Theo Kanning](https://github.com/TheoKanning/openai-java)
+  - Bare rest calls?
+- Rest API input example: PUT artist, title, chart position, week, year and image url.
 - Insert artist, title, chart position, week, year and image url into TABLE `crawl`, 
-- Is title + artist in TABLE `results`
-  - No, Use OpenAI API result, prompt and model name in results.
-- Store call results to db, make sure to include original prompt, model and processing start/end datetimestamp.
+- Is title + artist in TABLE `result`?
+  - No, Use OpenAI API and save result, prompt and model name in TABLE `result`.
+- Bonus points for a `GET` results
 
 ## Data model
 
