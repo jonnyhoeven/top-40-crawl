@@ -27,7 +27,7 @@ Python client and Springboot REST API service, crawling and augmenting top 40 mu
 - Insert artist, title, chart position, week, year and image url into TABLE `crawl`, 
 - Is title + artist in TABLE `result`?
   - No, Use OpenAI API and save result, prompt and model name in TABLE `result`.
-- Bonus points for a `GET` results
+- Bonus points for an `GET` rest API call returning results
 
 ## Data model
 
