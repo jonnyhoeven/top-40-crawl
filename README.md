@@ -26,7 +26,7 @@ Python client and Springboot REST API service, crawling and augmenting top 40 mu
 - Rest API input example: PUT artist, title, chart position, year, week and image url.
 - Insert artist, title, chart position, year, week and image url into TABLE `crawl`.
 - Is title + artist in TABLE `result`?
-  - No, Use OpenAI API data to and save result, prompt and model name in TABLE `result`.
+  - No, Use OpenAI API data to save result, prompt and model name in TABLE `result`.
 
 ```
 
