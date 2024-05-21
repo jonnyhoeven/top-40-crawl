@@ -1,35 +1,35 @@
-# top-40-crawl
+# Top 40 Crawler
 
-Springboot as rest api with db connection and `PUT` statement
-Python application crawling top 40 music chart data and requesting OpenAI interactions to provision DB.
+Python client and Springboot REST API, crawling and augmenting top 40 music charts together...
 
 [reference](https://spring.io/guides/tutorials/rest)
 
 ## Scraping
 
-- Scrape from https://www.top40.nl/top40/1965/week-1 to current date.
-- Find artist - title, chart position, week, year, image.
-- store to Python binary blobs
+- Scrape some stuff from https://www.top40.nl/top40/1965/week-1 till; whenever we get banned.
+- Store artist, title, chart position, week, year and image url.
+- Store it to Python binary objects for later client replayability against Springboot POC
 
-## Springboot is my new thing
+## Call player
 
-- Springboot rest API https://spring.io/guides/tutorials/rest
+- Parse binary objects and call the Springboot rest API.
+
+## Springboot
+
+- Springboot REST API [Tutorial](https://spring.io/guides/tutorials/rest)
 - DB connection
 - OpenAI API Java dependency
-- rest api input example: PUT title, chart position, week, year, image.
-- Check if title + artist has a record in `results` then only save week, year, chart position and original data using SQL and skip next step.
-- Use OpenAI API and create prompt for artist info, title description, lyrics, genre, bpm, key, keywords, release date and publisher.
+- rest api input example: PUT artist, title, chart position, week, year and image url.
+- Insert artist, title, chart position, week, year and image url into TABLE `crawl`, 
+- Is title + artist in TABLE `results`
+  - No, Use OpenAI API and save prompt, model in results.
 - Store call results to db, make sure to include original prompt, model and processing start/end datetimestamp.
-
-## Calling
-
-- Parse Binary blobs and call the Springboot rest API.
-- Bonus if rest/swagger results from db are avalailable with a GET request.
 
 ## Data model
 
 ```sql
-CHANGE DATABASE top40
+CHANGE DATABASE top40;
+
 CREATE crawl TABLE
   id            AUTO_NUMERIC,
   title         STRING,
@@ -39,30 +39,32 @@ CREATE crawl TABLE
   week          NUMERIC,
   image_id      NUMERIC,
   result_id     NUMERIC,
-  datetimestamp CURRENT();
+  created       CURRENT()
+;
 
 CREATE image TABLE
   id            AUTO_NUMERIC,
   url           STRING,
-  datetimestamp CURRENT();
+  created       CURRENT()
+;
 
 CREATE result TABLE
   id            AUTO_NUMERIC,
   model         STRING,
-  prompt_type   ENUM,
-  prompt        STRING,
-  result        STRING,
-  crawl_id   many-to-one join to top-40-crawl.id,
-  datetimestamp CURRENT();
+  input_prompt  STRING,
+  output_result STRING,
+  created       CURRENT()
+;
 ```
 
 ### Check for existing results
 
 ```sql
-SELECT COUNT(*) FROM crawl
+SELECT COUNT(*) FROM crawl AS c
 LEFT JOIN result ON result.crawl_id = crawl.id AS r
-WHERE  r.title = "title"
-  AND r.artist = "artist";
+WHERE  c.title = "title"
+  AND c.artist = "artist"
+;
 ```
 
 ### Prompting example
