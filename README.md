@@ -6,17 +6,12 @@
   api https://ytmusicapi.readthedocs.io/en/stable/reference.html#ytmusicapi.YTMusic.search
 - Store everything in Redis
 
-## Overview
+De [NL Top 40](https://www.top40.nl/top40/1965/week-1) website bevat data vanaf 1965 met elke week de top 40 van die week.
+Dit Python script crawlt `Yaar`, `Maand`, `Week`, `Rank`, `Artiest` en `Titel`. En word opgeslagen in Redis met de prefix `charts`
 
-Ik wilde eerste de OpenAI en YouTube API in een SpringBoot rest API zetten, echter kwam ik er al snel achter dat
-de meeste web resultaten van OpenAI en Springboot naar de mogelijkheid om je swagger api te documenteren.
-Wat ik dus niet wil, ik wilde een simpele API die ik kon gebruiken om data te verrijken en op te slaan in Redis.
-Voorlopig wel wat kunnen doen met springboot, met name het opzetten een nieuw project en environment config.
+Na het opslaan van chart song data zijn er 2 verschillende calls, OpenAI API en Youtube Music API.
 
-The top 40 website https://www.top40.nl/top40/1965/week-1 bevat data vanaf 1965 met elke week de top 40 van die week.
-Het script crawlt deze data en slaat deze op in Redis met de prefix `charts`.
-
-Hierna volgt een OpenAI API call om de data te verrijken:
+Eerst OpenAI, er zijn geen interdependecies, het is bij beide de inputs `artist` en `title`.
 
 ```text
 {
@@ -52,20 +47,19 @@ Release date: 1964 -||-
 Publisher: RCA Victor -||-
 ```
 
-In totaal zijn er ongeveer 125.000 chart entries, elke combinatie van `artiest-titel` zal worden opgezocht in de OpenAI
-API, gemiddeld kost dit 200~300 tokens per request. Via AIMLAPI heb ik een account die 2.000.000 tokens per maand kan
-gebruiken voor 5 euro. Ik verwacht dat de gehele top 40 charts van 1965 tot vandaag ongeveer 1.000.000 tokens zal kosten
-echter dit weten we pas aan het einde van de rit.
+In totaal zijn er ongeveer 125.000 chart entries, elke unieke combinatie met `result:artiest-titel` zal opgezocht worden in de OpenAI
+API zolang er geen eerdere `key` is gevonden met `result:artiest-titel` in Redis.
 
-Daarnaast gebruiken we de Youtube Music API om de video-url en metadata op te halen,
-Zo krijgen we een complete playlist voor youtube music op basis van de top 40 charts.
+Gemiddeld kost een call 200~300 tokens per request met `Lama 30b chat`.
 
-https://music.youtube.com/watch?v=xIeUMpyykG4
+Hierna gaat een Youtube Music API open call uit om met de string `artist - title` de eerste `song` uit de gemengde resultaten van YouTube music API te geven `thumbnail_url`, `video_url` en `duration` pakt het script op, maar er zit veel meer in de api.
 
-Deze resultaten worden opgeslagen in Redis met de prefix `result`. De YouTube API geeft niet altijd de beste resultaten,
-met name als er album resultaten worden weergegeven i.p.v. song resultaten.
+De resultaten worden opgeslagen met key `result:artist-title` in Redis.
 
-Leuke volgende stap zou zijn om de data in een SQL db te zetten, en met wat queries op een frontend applicatie te tonen.
+# Volgende stappen 
+
+- Volgende stap zou zijn om de data in een SQL db te zetten, en met wat queries op een frontend applicatie te tonen.
+- Uitbreiden YouTube API scraping, `views`, `Related Artist`, `Album` enzo.
 
 Voorlopig heb ik weer wat nieuwe muziek ontdekt.
 
@@ -92,8 +86,7 @@ pip install -r requirements.txt
 ```markdown
 curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
 sudo chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs)
-main" | sudo tee /etc/apt/sources.list.d/redis.list
+echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
 sudo apt-get update
 sudo apt-get install redis-stack-server
 sudo service redis-server start
