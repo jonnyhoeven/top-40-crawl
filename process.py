@@ -3,8 +3,8 @@ import requests
 import redis
 from dotenv import load_dotenv
 from openai import OpenAI
+from ytmusicapi import YTMusic
 
-ml_model = "meta-llama/Llama-3-70b-chat-hf"
 chart_song_count = 40
 scrape_artist_title_delim = ' - '
 
@@ -16,10 +16,12 @@ openapi_url = environ['API_URL']
 redis_host = environ['REDIS_HOST']
 redis_port = environ['REDIS_PORT']
 
-client = OpenAI(
+ml_client = OpenAI(
     api_key=openapi_key,
     base_url=openapi_url
 )
+
+yt_client = YTMusic()
 
 try:
     rds = redis.Redis(host=redis_host, port=redis_port, decode_responses=True)
@@ -41,7 +43,7 @@ def parse_top40_page(html):
 
 
 def retrieve_ml_response(model, messages):
-    return client.chat.completions.create(
+    return ml_client.chat.completions.create(
         model=model,
         messages=messages,
     )
@@ -90,6 +92,7 @@ class Song:
             self.title = 'unknown title'
 
         self.result_key = f'result:{self.artist}-{self.title}'
+        self.chart_key = f'charts:{self.artist}-{self.title}'
 
 
 def __str__(self):
@@ -99,7 +102,6 @@ def __str__(self):
 def parse_chart(year, week):
     html = retrieve_top40_page(year, week)
     items = parse_top40_page(html)
-
     for idx, scrape_str in enumerate(items):
         sng = Song(year, week, idx, scrape_str)
 
@@ -108,7 +110,7 @@ def parse_chart(year, week):
 
         print(sng.year, sng.week, sng.rank, sng.artist, scrape_artist_title_delim, sng.title)
 
-        rds.hset(sng.result_key, mapping={
+        rds.hset(sng.chart_key, mapping={
             'artist': sng.artist,
             'title': sng.title,
             'week': sng.week,
@@ -120,7 +122,7 @@ def parse_chart(year, week):
         if rds.hgetall(sng.result_key):
             print('Previously processed by ml model')
         else:
-            print('Processing ML model: ', ml_model)
+            print('Processing...')
             messages = [
                 {
                     "role": "system",
@@ -139,12 +141,25 @@ def parse_chart(year, week):
                     "content": f"Describe the song {sng.title} from the artist {sng.artist} in the desired format"
                 }
             ]
-            response = retrieve_ml_response(ml_model, messages)
+            response = retrieve_ml_response("meta-llama/Llama-3-70b-chat-hf", messages)
 
             d = parse_ml_response(response)
             d.update(sng.__dict__)
+            y = yt_client.search(f'{sng.artist} {sng.title}')
+            for k, v in enumerate(y):
+                if v['resultType'] == 'song':
+                    try:
+                        d['video_id'] = v['videoId']
+                        d['video_url'] = f'https://music.youtube.com/watch?v={v["videoId"]}'
+                        d['duration'] = v['duration']
+                        d['thumbnail'] = v['thumbnails'][0]['url']
+                    except:
+                        print('Error: Failure parsing youtube response')
+                break
+
             rds.hset(sng.result_key, mapping=d)
 
-    for year in range(1965, 2024):
-        for week in range(1, 53):
-            parse_chart(year, week)
+
+for year in range(1965, 2024):
+    for week in range(1, 53):
+        parse_chart(year, week)
