@@ -1,10 +1,10 @@
 # Top 40 crawler
 
-- Crawls every weekly top 40 from 1956 till presents.
+- Crawls every weekly top 40 from 1956 till present.
 - Augment results using OpenAI API.
-- Store everything in redis
 - Get youtube music metadata and video url from
   api https://ytmusicapi.readthedocs.io/en/stable/reference.html#ytmusicapi.YTMusic.search
+- Store everything in Redis
 
 ## Overview
 
@@ -52,16 +52,22 @@ Release date: 1964 -||-
 Publisher: RCA Victor -||-
 ```
 
-In totaal zijn er ongeveer 125.000 chart entries, elke combinatie van `artiest-titel` zal worden opgezocht in de OpenAI API
-Daarnaast gebruiken we de Youtube Music API om de videourl en metadata op te halen, deze resultaten worden opgeslagen
-in Redis met de prefix `result`. De youtube API geeft niet altijd de beste resultaten, met name als er album 
-resultaten worden weergegeven i.p.v. song resultaten.
+In totaal zijn er ongeveer 125.000 chart entries, elke combinatie van `artiest-titel` zal worden opgezocht in de OpenAI
+API, gemiddeld kost dit 200~300 tokens per request. Via AIMLAPI heb ik een account die 2.000.000 tokens per maand kan
+gebruiken voor 5 euro. Ik verwacht dat de gehele top 40 charts van 1965 tot vandaag ongeveer 1.000.000 tokens zal kosten
+echter dit weten we pas aan het einde van de rit.
 
-Aan het einde van de rit kunnen we bepalen hoeveel unieke nummers we hebben kunnen vinden en verrijken.
+Daarnaast gebruiken we de Youtube Music API om de video-url en metadata op te halen,
+Zo krijgen we een complete playlist voor youtube music op basis van de top 40 charts.
 
-Goede volgende stap zou zijn om de data in een SQL db te zetten, en met wat queries op een frontend applicatie te tonen.
+https://music.youtube.com/watch?v=xIeUMpyykG4
 
+Deze resultaten worden opgeslagen in Redis met de prefix `result`. De YouTube API geeft niet altijd de beste resultaten,
+met name als er album resultaten worden weergegeven i.p.v. song resultaten.
 
+Leuke volgende stap zou zijn om de data in een SQL db te zetten, en met wat queries op een frontend applicatie te tonen.
+
+Voorlopig heb ik weer wat nieuwe muziek ontdekt.
 
 ## Requirements
 
